@@ -84,3 +84,12 @@ CREATE TABLE IF NOT EXISTS course_exams (
                                             PRIMARY KEY (exam_id),
                                             FOREIGN KEY (course_id) REFERENCES courses(course_id)
 );
+-- 북마크용 테이블 정의
+CREATE TABLE IF NOT EXISTS user_bookmarks (
+                                              user_id     BIGINT    NOT NULL,
+                                              course_id   INT       NOT NULL,
+                                              created_at  DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                              PRIMARY KEY (user_id, course_id),
+                                              FOREIGN KEY (user_id)   REFERENCES users(user_id),
+                                              FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);

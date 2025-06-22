@@ -151,3 +151,7 @@ INSERT IGNORE INTO course_major_rel (course_id, major_id) VALUES
                                                               (28,5),
                                                               (29,5),
                                                               (30,5);
+INSERT IGNORE INTO users
+(user_id, username, password, name, nickname, email, student_id, major_id)
+VALUES
+    (1, 'testuser', 'pass', '테스트유저', '테스터', 'test@example.com', '20250001', 1);
