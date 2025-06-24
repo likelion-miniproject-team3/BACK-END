@@ -93,3 +93,14 @@ CREATE TABLE IF NOT EXISTS user_bookmarks (
                                               FOREIGN KEY (user_id)   REFERENCES users(user_id),
                                               FOREIGN KEY (course_id) REFERENCES courses(course_id)
 );
+-- 이미 수강한 과목(수강내역) 테이블
+CREATE TABLE IF NOT EXISTS user_enrollments (
+                                                enrollment_id BIGINT      NOT NULL AUTO_INCREMENT,
+                                                user_id       BIGINT      NOT NULL,
+                                                course_id     INT         NOT NULL,
+                                                enrolled_at   DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                                PRIMARY KEY (enrollment_id),
+                                                UNIQUE KEY uk_user_course (user_id, course_id),
+                                                FOREIGN KEY (user_id)   REFERENCES users(user_id),
+                                                FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);
