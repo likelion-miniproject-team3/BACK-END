@@ -104,3 +104,11 @@ CREATE TABLE IF NOT EXISTS user_enrollments (
                                                 FOREIGN KEY (user_id)   REFERENCES users(user_id),
                                                 FOREIGN KEY (course_id) REFERENCES courses(course_id)
 );
+-- course_exams 테이블이 이미 있어야 합니다.
+-- 8) 시험정보 파일 URL을 담는 조인 테이블
+CREATE TABLE IF NOT EXISTS course_exam_files (
+                                                 exam_id  BIGINT      NOT NULL,
+                                                 file_url VARCHAR(500) NOT NULL,
+                                                 PRIMARY KEY (exam_id, file_url),
+                                                 FOREIGN KEY (exam_id) REFERENCES course_exams(exam_id)
+);
