@@ -3,6 +3,8 @@ package com.example.majorapp.entity;
 import jakarta.persistence.*;
 import java.util.List;
 
+import com.example.majorapp.entity.Course;  // 경로 수정
+
 @Entity
 @Table(name = "majors")
 public class Major {

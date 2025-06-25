@@ -8,17 +8,28 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")  // DB 컬럼명
-    private Long user_Id;
+    @Column(name = "user_id")
+    private Long id;
 
-    @Column(name = "nickname")
+    @Column(nullable = false, unique = true)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private String name;
+
     private String nickname;
 
-    @Column(name = "email")
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "student_id")
-    private String student_Id;
+    @Column(name = "student_id", unique = true)
+    private String studentId;
+
+    @Column(name = "major_id", nullable = false)
+    private Integer majorId;
 
     @Column(name = "profile_photo_url")
     private String profilePhotoUrl;
@@ -26,13 +37,38 @@ public class User {
     // 기본 생성자
     public User() {}
 
-    // Getter, Setter
-    public Long getUser_Id() {
-        return user_Id;
+    // ✅ 필수 Getter & Setter
+
+    public Long getId() {
+        return id;
     }
 
-    public void setUser_Id(Long user_Id) {
-        this.user_Id = user_Id;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getNickname() {
@@ -51,12 +87,20 @@ public class User {
         this.email = email;
     }
 
-    public String getStudent_Id() {
-        return student_Id;
+    public String getStudentId() {
+        return studentId;
     }
 
-    public void setStudent_Id(String student_Id) {
-        this.student_Id = student_Id;
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public Integer getMajorId() {
+        return majorId;
+    }
+
+    public void setMajorId(Integer majorId) {
+        this.majorId = majorId;
     }
 
     public String getProfilePhotoUrl() {

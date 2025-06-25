@@ -1,12 +1,12 @@
 package com.example.majorapp.dto;
 
-public class UserProfileUpdateDto {
+public class UserProfileUpdateRequest {
     private String nickname;
     private String profilePhotoUrl;
 
-    public UserProfileUpdateDto() {}
+    public UserProfileUpdateRequest() {}
 
-    public UserProfileUpdateDto(String nickname, String profilePhotoUrl) {
+    public UserProfileUpdateRequest(String nickname, String profilePhotoUrl) {
         this.nickname = nickname;
         this.profilePhotoUrl = profilePhotoUrl;
     }

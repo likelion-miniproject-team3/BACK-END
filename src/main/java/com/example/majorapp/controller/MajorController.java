@@ -1,23 +1,13 @@
 package com.example.majorapp.controller;
 
-import com.example.majorapp.dto.CourseDto;
-import com.example.majorapp.service.MajorService;
-import org.springframework.web.bind.annotation.*;
+import com.example.majorapp.dto.ApiResponse;  // DTO ApiResponse import 추가
 
-import java.util.List;
+import org.springframework.web.bind.annotation.RestController;
+
+// 기존에 MajorController 클래스 선언 부분만 남기고,
+// 절대 이 파일에 ApiResponse 클래스 직접 선언하지 마세요!
 
 @RestController
-@RequestMapping("/api/majors")
 public class MajorController {
-
-    private final MajorService majorService;
-
-    public MajorController(MajorService majorService) {
-        this.majorService = majorService;
-    }
-
-    @GetMapping("/{majorId}/courses")
-    public List<CourseDto> listByMajor(@PathVariable Integer majorId) {
-        return majorService.getCoursesByMajor(majorId);
-    }
+    // 기존 코드들...
 }
