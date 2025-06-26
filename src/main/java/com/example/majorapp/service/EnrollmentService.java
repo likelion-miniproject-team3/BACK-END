@@ -6,10 +6,8 @@ import com.example.majorapp.dto.EnrollmentCourseDto;
 import java.util.List;
 
 public interface EnrollmentService {
-    EnrollmentDto addEnrollment(Long userId, Integer courseId);
-    void removeEnrollment(Long userId, Integer courseId);
-    List<EnrollmentDto> getEnrollments(Long userId);
-
-    // ← 여기를 추가
-    List<EnrollmentCourseDto> getEnrolledCourses(Long userId);
+    EnrollmentDto addEnrollment(String username, Integer courseId);
+    void removeEnrollment(String username, Integer courseId);
+    List<EnrollmentDto> getEnrollments(String username);
+    List<EnrollmentCourseDto> getEnrolledCourses(String username);
 }

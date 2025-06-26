@@ -3,6 +3,7 @@ package com.example.majorapp.service;
 import com.example.majorapp.dto.CreateExamRequest;
 import com.example.majorapp.dto.ExamDto;
 import com.example.majorapp.entity.CourseExam;
+import com.example.majorapp.entity.User;
 import com.example.majorapp.repository.CourseExamRepository;
 import com.example.majorapp.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class ExamServiceImpl implements ExamService {
         return examRepo.findByCourseId(courseId).stream()
                 .map(e -> {
                     String nick = userRepo.findById(e.getUserId())
-                            .map(u -> u.getNickname())
+                            .map(User::getNickname)
                             .orElse("익명");
                     return new ExamDto(
                             e.getExamId(),
@@ -56,20 +57,27 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     public ExamDto createOrUpdateExam(
+            String username,
             Integer courseId,
             CreateExamRequest req,
             List<MultipartFile> files
     ) throws IOException {
+        // 1) username → User → userId
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Long userId = user.getId();
+
+        // 2) 기존 레코드 조회 or 신규 생성
         CourseExam exam = examRepo
                 .findByUserIdAndCourseIdAndSemesterYearAndSemesterTermAndAttemptType(
-                        req.userId(),
+                        userId,
                         courseId,
                         req.semesterYear(),
                         req.semesterTerm(),
                         req.attemptType()
                 )
                 .orElseGet(() -> new CourseExam(
-                        req.userId(),
+                        userId,
                         courseId,
                         req.semesterYear(),
                         req.semesterTerm(),
@@ -78,13 +86,14 @@ public class ExamServiceImpl implements ExamService {
                         List.of()
                 ));
 
-        // 내용 및 파일 업데이트
+        // 3) 내용 및 파일 저장
         exam.setContent(req.content());
         exam.setFileUrls(storage.storeAll(files));
 
         CourseExam saved = examRepo.save(exam);
+
         String nick = userRepo.findById(saved.getUserId())
-                .map(u -> u.getNickname())
+                .map(User::getNickname)
                 .orElse("익명");
 
         return new ExamDto(

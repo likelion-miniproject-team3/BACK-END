@@ -1,39 +1,23 @@
 package com.example.majorapp.entity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "registration_session")
+public class RegistrationSession {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")   // ← 컬럼명을 명시적으로 지정
-    private Long id;
-
+    private String tempId;
     private String name;
     private String email;
     private String nickname;
     private String studentId;
-
-    @Column(unique = true)
     private String username;
-
     private String password;
 
-    @ManyToOne
-    @JoinColumn(name = "major_id")
-    private Major major;
-
-    // getters/setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getTempId() { return tempId; }
+    public void setTempId(String tempId) { this.tempId = tempId; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public String getEmail() { return email; }
@@ -46,6 +30,4 @@ public class User {
     public void setUsername(String username) { this.username = username; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-    public Major getMajor() { return major; }
-    public void setMajor(Major major) { this.major = major; }
 }

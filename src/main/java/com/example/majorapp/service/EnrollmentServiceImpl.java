@@ -4,8 +4,10 @@ import com.example.majorapp.dto.EnrollmentDto;
 import com.example.majorapp.dto.EnrollmentCourseDto;
 import com.example.majorapp.entity.Course;
 import com.example.majorapp.entity.Enrollment;
+import com.example.majorapp.entity.User;
 import com.example.majorapp.repository.CourseRepository;
 import com.example.majorapp.repository.EnrollmentRepository;
+import com.example.majorapp.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,31 +17,39 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class EnrollmentServiceImpl implements EnrollmentService {
+
     private final EnrollmentRepository repo;
     private final CourseRepository courseRepo;
+    private final UserRepository userRepo;
 
     public EnrollmentServiceImpl(EnrollmentRepository repo,
-                                 CourseRepository courseRepo) {
+                                 CourseRepository courseRepo,
+                                 UserRepository userRepo) {
         this.repo = repo;
         this.courseRepo = courseRepo;
+        this.userRepo = userRepo;
     }
 
     @Override
-    public EnrollmentDto addEnrollment(Long userId, Integer courseId) {
-        if (repo.existsByUserIdAndCourseId(userId, courseId)) {
-            Enrollment existing = repo.findAllByUserId(userId).stream()
-                    .filter(e -> e.getCourseId().equals(courseId))
+    public EnrollmentDto addEnrollment(String username, Integer courseId) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Long uid = user.getId();
+        // 이미 있으면 기존 객체 반환
+        if (repo.existsByUserIdAndCourseId(uid, courseId)) {
+            Enrollment e = repo.findAllByUserId(uid).stream()
+                    .filter(x -> x.getCourseId().equals(courseId))
                     .findFirst()
                     .orElseThrow();
             return new EnrollmentDto(
-                    existing.getId(),
-                    existing.getUserId(),
-                    existing.getCourseId(),
-                    existing.getEnrolledAt()
+                    e.getId(),
+                    e.getUserId(),
+                    e.getCourseId(),
+                    e.getEnrolledAt()
             );
         }
-        Enrollment e = new Enrollment(userId, courseId);
-        Enrollment saved = repo.save(e);
+        Enrollment en = new Enrollment(uid, courseId);
+        Enrollment saved = repo.save(en);
         return new EnrollmentDto(
                 saved.getId(),
                 saved.getUserId(),
@@ -49,13 +59,17 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    public void removeEnrollment(Long userId, Integer courseId) {
-        repo.deleteByUserIdAndCourseId(userId, courseId);
+    public void removeEnrollment(String username, Integer courseId) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        repo.deleteByUserIdAndCourseId(user.getId(), courseId);
     }
 
     @Override
-    public List<EnrollmentDto> getEnrollments(Long userId) {
-        return repo.findAllByUserId(userId).stream()
+    public List<EnrollmentDto> getEnrollments(String username) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return repo.findAllByUserId(user.getId()).stream()
                 .map(e -> new EnrollmentDto(
                         e.getId(),
                         e.getUserId(),
@@ -66,14 +80,16 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    public List<EnrollmentCourseDto> getEnrolledCourses(Long userId) {
-        return repo.findAllByUserId(userId).stream()
+    public List<EnrollmentCourseDto> getEnrolledCourses(String username) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return repo.findAllByUserId(user.getId()).stream()
                 .map(e -> {
                     Course c = courseRepo.findById(e.getCourseId())
-                            .orElseThrow();
+                            .orElseThrow(() -> new IllegalArgumentException("Course not found"));
                     return new EnrollmentCourseDto(
                             e.getId(),
-                            c.getId(),         // ← 여기서 getId() 로 변경
+                            c.getId(),
                             c.getCode(),
                             c.getName(),
                             c.getDescription(),

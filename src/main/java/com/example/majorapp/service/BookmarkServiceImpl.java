@@ -4,8 +4,10 @@ import com.example.majorapp.dto.CourseDto;
 import com.example.majorapp.entity.Bookmark;
 import com.example.majorapp.entity.BookmarkId;
 import com.example.majorapp.entity.Course;
+import com.example.majorapp.entity.User;
 import com.example.majorapp.repository.BookmarkRepository;
 import com.example.majorapp.repository.CourseRepository;
+import com.example.majorapp.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,43 +20,54 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     private final BookmarkRepository repo;
     private final CourseRepository courseRepo;
+    private final UserRepository userRepo;
 
     public BookmarkServiceImpl(BookmarkRepository repo,
-                               CourseRepository courseRepo) {
+                               CourseRepository courseRepo,
+                               UserRepository userRepo) {
         this.repo = repo;
         this.courseRepo = courseRepo;
+        this.userRepo = userRepo;
     }
 
     @Override
-    public void addBookmark(Long userId, Integer courseId) {
-        repo.save(new Bookmark(new BookmarkId(userId, courseId)));
+    public void addBookmark(String username, Integer courseId) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        repo.save(new Bookmark(new BookmarkId(user.getId(), courseId)));
     }
 
     @Override
-    public void removeBookmark(Long userId, Integer courseId) {
-        repo.deleteById(new BookmarkId(userId, courseId));
+    public void removeBookmark(String username, Integer courseId) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        repo.deleteById(new BookmarkId(user.getId(), courseId));
     }
 
     @Override
-    public List<Integer> getBookmarks(Long userId) {
+    public List<Integer> getBookmarkIds(String username) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Long uid = user.getId();
         return repo.findAll().stream()
-                .filter(b -> b.getId().getUserId().equals(userId))
-                .map(b -> b.getId().getCourseId())
+                .map(b -> b.getId())
+                .filter(id -> id.getUserId().equals(uid))
+                .map(BookmarkId::getCourseId)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<CourseDto> getBookmarkedCourses(Long userId) {
-        // 1) 북마크된 courseId 리스트 조회
+    public List<CourseDto> getBookmarkedCourses(String username) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Long uid = user.getId();
         List<Integer> courseIds = repo.findAll().stream()
-                .filter(b -> b.getId().getUserId().equals(userId))
-                .map(b -> b.getId().getCourseId())
+                .map(Bookmark::getId)
+                .filter(id -> id.getUserId().equals(uid))
+                .map(BookmarkId::getCourseId)
                 .collect(Collectors.toList());
 
-        // 2) Course 엔티티 일괄 조회
         List<Course> courses = courseRepo.findAllById(courseIds);
-
-        // 3) 엔티티 → DTO 변환
         return courses.stream()
                 .map(c -> new CourseDto(
                         c.getId(),
@@ -64,7 +77,7 @@ public class BookmarkServiceImpl implements BookmarkService {
                         c.getYear(),
                         c.getSemester(),
                         c.getCredit(),
-                        c.getRequired()       // Boolean 필드의 getter 사용
+                        c.getRequired()
                 ))
                 .collect(Collectors.toList());
     }

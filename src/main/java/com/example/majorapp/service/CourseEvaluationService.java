@@ -1,4 +1,3 @@
-// src/main/java/com/example/majorapp/service/CourseEvaluationService.java
 package com.example.majorapp.service;
 
 import com.example.majorapp.dto.CreateEvaluationRequest;
@@ -12,11 +11,11 @@ public interface CourseEvaluationService {
     List<EvaluationDto> getEvaluationsByCourse(Integer courseId);
 
     /**
-     * 리뷰 생성 또는 업데이트
+     * 로그인된 유저의 리뷰 생성 또는 업데이트
      * - 이미 있으면 수정, 없으면 신규 생성
      */
     EvaluationDto createOrUpdateEvaluation(
-            Long userId,
+            String username,
             Integer courseId,
             CreateEvaluationRequest req
     );

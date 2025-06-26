@@ -1,5 +1,6 @@
 package com.example.majorapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -23,9 +24,13 @@ public class Major {
             joinColumns = @JoinColumn(name = "major_id"),
             inverseJoinColumns = @JoinColumn(name = "course_id")
     )
+    @JsonIgnore  // → /api/majors 에선 제외
     private List<Course> courses;
 
-    // getters & setters
+    // getters/setters...
+
+
+// getters & setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     public String getCode() { return code; }

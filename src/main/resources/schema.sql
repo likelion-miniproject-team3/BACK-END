@@ -39,22 +39,7 @@ CREATE TABLE IF NOT EXISTS users (
                                      FOREIGN KEY (major_id) REFERENCES majors(major_id)
 );
 
--- 2) 가입 세션 임시 저장 테이블
-CREATE TABLE IF NOT EXISTS registration_sessions (
-                                                     temp_id      CHAR(36)       NOT NULL,             -- UUID 같은 임시 세션키
-                                                     username     VARCHAR(50),                         -- step1 입력값
-                                                     password     VARCHAR(100),                       -- step1 비밀번호 (평문)
-                                                     name         VARCHAR(50),                         -- step2 입력값
-                                                     nickname     VARCHAR(50),                         -- step2 입력값
-                                                     email        VARCHAR(100),                        -- step2 입력값
-                                                     student_id   VARCHAR(20),                         -- step2 입력값
-                                                     major_id     INT,                                 -- step3 선택값
-                                                     step         TINYINT        NOT NULL,             -- 현재 진행 스텝 번호
-                                                     created_at   DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                                     updated_at   DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                                     PRIMARY KEY (temp_id),
-                                                     FOREIGN KEY (major_id) REFERENCES majors(major_id)
-);
+
 -- 1) 강의평(수강후기) 테이블
 CREATE TABLE IF NOT EXISTS course_evaluations (
                                                   evaluation_id   BIGINT         NOT NULL AUTO_INCREMENT,
@@ -111,4 +96,19 @@ CREATE TABLE IF NOT EXISTS course_exam_files (
                                                  file_url VARCHAR(500) NOT NULL,
                                                  PRIMARY KEY (exam_id, file_url),
                                                  FOREIGN KEY (exam_id) REFERENCES course_exams(exam_id)
+);
+CREATE TABLE IF NOT EXISTS registration_session (
+                                                    temp_id      CHAR(36)       NOT NULL,
+                                                    username     VARCHAR(50),
+                                                    password     VARCHAR(100),
+                                                    name         VARCHAR(50),
+                                                    nickname     VARCHAR(50),
+                                                    email        VARCHAR(100),
+                                                    student_id   VARCHAR(20),
+                                                    major_id     INT,
+                                                    step         TINYINT        NOT NULL,
+                                                    created_at   DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                                    updated_at   DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                                    PRIMARY KEY (temp_id),
+                                                    FOREIGN KEY (major_id) REFERENCES majors(major_id)
 );

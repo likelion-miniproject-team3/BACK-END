@@ -1,4 +1,3 @@
-// src/main/java/com/example/majorapp/controller/CourseEvaluationController.java
 package com.example.majorapp.controller;
 
 import com.example.majorapp.dto.CreateEvaluationRequest;
@@ -6,6 +5,7 @@ import com.example.majorapp.dto.EvaluationDto;
 import com.example.majorapp.dto.EvaluationSummaryDto;
 import com.example.majorapp.service.CourseEvaluationService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class CourseEvaluationController {
     }
 
     /**
-     * 평균 평점과 후기 목록을 함께 반환
+     * 평균 평점과 후기 목록을 함께 반환 (공개)
      */
     @GetMapping
     public ResponseEntity<EvaluationSummaryDto> list(
@@ -36,15 +36,16 @@ public class CourseEvaluationController {
     }
 
     /**
-     * 리뷰 생성 또는 수정 (중복 방지)
+     * 로그인한 유저의 리뷰 생성 또는 수정
      */
     @PostMapping
     public ResponseEntity<EvaluationDto> createOrUpdate(
             @PathVariable Integer courseId,
-            @RequestBody CreateEvaluationRequest req
+            @RequestBody CreateEvaluationRequest req,
+            Authentication auth
     ) {
-        return ResponseEntity.ok(
-                svc.createOrUpdateEvaluation(req.userId(), courseId, req)
-        );
+        String username = auth.getName();
+        EvaluationDto saved = svc.createOrUpdateEvaluation(username, courseId, req);
+        return ResponseEntity.ok(saved);
     }
 }

@@ -1,4 +1,3 @@
-// src/main/java/com/example/majorapp/service/CourseEvaluationServiceImpl.java
 package com.example.majorapp.service;
 
 import com.example.majorapp.dto.CreateEvaluationRequest;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 public class CourseEvaluationServiceImpl implements CourseEvaluationService {
 
     private final CourseEvaluationRepository evalRepo;
-    private final UserRepository            userRepo;
+    private final UserRepository userRepo;
 
     public CourseEvaluationServiceImpl(
             CourseEvaluationRepository evalRepo,
@@ -51,12 +50,17 @@ public class CourseEvaluationServiceImpl implements CourseEvaluationService {
 
     @Override
     public EvaluationDto createOrUpdateEvaluation(
-            Long userId,
+            String username,
             Integer courseId,
             CreateEvaluationRequest req
     ) {
+        // 1) username → User 조회
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Long userId = user.getId();
+
+        // 2) 이미 작성된 리뷰가 있으면 수정, 없으면 신규 생성
         if (evalRepo.existsByUserIdAndCourseId(userId, courseId)) {
-            // 수정
             CourseEvaluation existing = evalRepo
                     .findByUserIdAndCourseId(userId, courseId)
                     .orElseThrow();
@@ -66,20 +70,8 @@ public class CourseEvaluationServiceImpl implements CourseEvaluationService {
             existing.setContent(req.content());
             CourseEvaluation saved = evalRepo.save(existing);
 
-            User u = userRepo.findById(userId).orElseThrow();
-            return new EvaluationDto(
-                    saved.getId(),
-                    saved.getUserId(),
-                    u.getNickname(),
-                    saved.getCourseId(),
-                    saved.getRating(),
-                    saved.getSemesterYear(),
-                    saved.getSemesterTerm(),
-                    saved.getContent(),
-                    saved.getCreatedAt()
-            );
+            return toDto(saved, user.getNickname());
         } else {
-            // 신규 생성
             CourseEvaluation e = new CourseEvaluation(
                     userId,
                     courseId,
@@ -89,19 +81,22 @@ public class CourseEvaluationServiceImpl implements CourseEvaluationService {
                     req.content()
             );
             CourseEvaluation saved = evalRepo.save(e);
-
-            User u = userRepo.findById(userId).orElseThrow();
-            return new EvaluationDto(
-                    saved.getId(),
-                    saved.getUserId(),
-                    u.getNickname(),
-                    saved.getCourseId(),
-                    saved.getRating(),
-                    saved.getSemesterYear(),
-                    saved.getSemesterTerm(),
-                    saved.getContent(),
-                    saved.getCreatedAt()
-            );
+            return toDto(saved, user.getNickname());
         }
+    }
+
+    // 공통 DTO 변환
+    private EvaluationDto toDto(CourseEvaluation e, String nickname) {
+        return new EvaluationDto(
+                e.getId(),
+                e.getUserId(),
+                nickname,
+                e.getCourseId(),
+                e.getRating(),
+                e.getSemesterYear(),
+                e.getSemesterTerm(),
+                e.getContent(),
+                e.getCreatedAt()
+        );
     }
 }
